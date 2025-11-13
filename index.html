@@ -112,7 +112,7 @@
 
 <!-- NAVBAR -->
 <nav>
-  <div class="brand">Rincón • EUFORY • Market</div>
+  <div class="brand"> Online • Tiendas 3E • Market</div>
 
   <div class="navlinks" id="navlinks">
     <!-- Links generados por JS -->
@@ -120,7 +120,7 @@
 
   <div style="margin-left:auto;display:flex;gap:8px">
     <button class="btn secondary" id="themeToggle">Toggle theme</button>
-    <button class="btn" onclick="showRandomPhrase()">Motívate</button>
+    <button class="btn" onclick="showRandomPhrase()"> Home </button>
   </div>
 </nav>
 
@@ -173,7 +173,7 @@
     </div>
 
     <div class="card small">
-      <h4>Frase del día</h4>
+      <h4>Promociones del día</h4>
       <div id="phraseBox">—</div>
     </div>
   </aside>
@@ -182,7 +182,7 @@
 
 <!-- FOOTER -->
 <footer>
-  <div class="meta">Prototipo cliente-side • No almacena órdenes en servidor • Diseño all-in-one</div>
+  <div class="meta">Prototipo Demo cliente-side • No almacena órdenes en servidor • Diseño all-in-one</div>
 </footer>
 
 <!-- SCRIPTS: todo en un solo bloque para que lo entiendas fácil -->
@@ -191,19 +191,19 @@
    DATOS EMBED (simulan products.json / components)
    ----------------------- */
 
-/*
+
 const DATA = {
   products: [
-    { id:"p001", name:"Hamburguesa Clásica", price:50, desc:"Pan, carne, queso y salsa.", cat:"Comida" },
-    { id:"p002", name:"Pizza Mediana", price:120, desc:"Pepperoni, extra queso.", cat:"Comida" },
-    { id:"p003", name:"Café Expreso", price:25, desc:"Taza pequeña.", cat:"Bebidas" },
-    { id:"p004", name:"Combo Hada", price:180, desc:"Hamburguesa + papas + bebida.", cat:"Ofertas" }
+    { id:"p001", name:"Abarrote", price:50, desc:"Pan, lata, maiz y salsa.", cat:"Comida" },
+    { id:"p002", name:"Farmacia", price:120, desc:"Paracetamol, Ibuprofeno.", cat:"Medicamento" },
+    { id:"p003", name:"Refresco", price:25, desc:"Botellas 600ml .", cat:"Bebidas" },
+    { id:"p004", name:"Juguete", price:50, desc:"jugueteria.", cat:"Ofertas" }
   ],
-  categories: ["Todos","Comida","Bebidas","Ofertas"],
+  categories: ["Todos","Comida","Bebidas","Ofertas","abarrote","dulces","cigarro","limpieza"],
   phrases: [
-    "VALOR. No por lo que logras, sino por lo que aguantas sin rendirte.",
-    "VALÓRATE. No porque te vean, sino porque sabes lo que diste.",
-    "A veces dolido, pero nunca vacío."
+    "",
+    "",
+    ""
   ],
   terms: `TÉRMINOS DE PEDIDO — Al seleccionar "Pago en efectivo" y enviar el pedido, el cliente acepta pagar la totalidad al recibirlo. El sistema actúa solo como interfaz de pedido; el restaurante confirmará disponibilidad y entrega. Cancelaciones posteriores pueden no ser aceptadas.`
 };
