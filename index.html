@@ -1,0 +1,504 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width,initial-scale=1" />
+<title> Tiendas 3-E Marketplace </title>
+
+<!-- Estilos (todo en este archivo para que sea "one-file" y aprendas rápido) -->
+
+<style>
+  :root{
+    --bg-light: #ffffff;
+    --text-light: #111;
+    --bg-dark: #0f1720;
+    --text-dark: #e6eef8;
+    --accent: #ff6b6b;
+    --nav-h: 64px;
+    --aside-w: 260px;
+    --gap: 18px;
+    font-family: Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+  }
+
+  /* Tema por sistema */
+  body{
+    margin:0;
+    background:var(--bg-light);
+    color:var(--text-light);
+    display:grid;
+    grid-template-rows: var(--nav-h) 1fr auto;
+    height:100vh;
+  }
+  @media (prefers-color-scheme: dark){
+    body{ background:var(--bg-dark); color:var(--text-dark); }
+    a { color: #9fd3ff; }
+  }
+
+  /* Navbar fija */
+  nav{
+    position:fixed;
+    top:0; left:0; right:0;
+    height:var(--nav-h);
+    display:flex;
+    align-items:center;
+    gap:12px;
+    padding:0 18px;
+    background:rgba(255,255,255,0.92);
+    backdrop-filter: blur(6px);
+    z-index:1000;
+    border-bottom:1px solid rgba(0,0,0,0.06);
+  }
+  @media (prefers-color-scheme: dark){
+    nav{ background: rgba(6,6,8,0.6); border-bottom:1px solid rgba(255,255,255,0.03); }
+  }
+  nav .brand{ font-weight:700; letter-spacing:0.2px; }
+  nav .navlinks{ margin-left:18px; display:flex; gap:10px; }
+  nav .navlinks a{ text-decoration:none; padding:6px 8px; border-radius:6px; font-size:14px; color:inherit; opacity:0.9; }
+  nav .navlinks a:hover{ background:rgba(0,0,0,0.04); }
+
+  /* Layout principal (bajo el navbar) */
+  .wrap{
+    display:grid;
+    grid-template-columns: var(--aside-w) 1fr var(--aside-w);
+    gap:var(--gap);
+    padding: calc(var(--nav-h) + 18px) 18px 18px 18px; /* deja espacio por la navbar */
+    height: calc(100vh - var(--nav-h) - 80px);
+    box-sizing:border-box;
+  }
+
+  aside{
+    background:rgba(0,0,0,0.02);
+    padding:12px;
+    border-radius:10px;
+    overflow:auto;
+  }
+  @media (prefers-color-scheme: dark){
+    aside{ background: rgba(255,255,255,0.02); }
+  }
+
+  main{
+    background: transparent;
+    padding:12px;
+    border-radius:10px;
+    overflow:auto;
+  }
+
+  .card{ padding:12px; margin-bottom:12px; border-radius:8px; background:rgba(255,255,255,0.03); }
+  .product{ display:flex; align-items:center; justify-content:space-between; gap:10px; padding:8px; border-bottom:1px dashed rgba(0,0,0,0.06); }
+  .product h4{ margin:0; font-size:15px; }
+  .btn{ padding:8px 10px; border-radius:8px; cursor:pointer; border:0; background:var(--accent); color:white; font-weight:600; }
+  .btn.secondary{ background:transparent; border:1px solid rgba(0,0,0,0.08); color:inherit; }
+  .small{ font-size:13px; opacity:0.9; }
+
+  footer{ padding:12px 18px; text-align:center; font-size:13px; color:rgba(0,0,0,0.6); }
+  @media (prefers-color-scheme: dark){ footer{ color:rgba(255,255,255,0.4); } }
+
+  /* Cart UI */
+  #cart-list div{ display:flex; justify-content:space-between; gap:8px; padding:6px 0; }
+  .flex{ display:flex; gap:8px; align-items:center; }
+  .link-like{ cursor:pointer; text-decoration:underline; opacity:0.9; font-size:13px; }
+
+  /* Responsive: colapsar asides en pantallas pequeñas */
+  @media (max-width:900px){
+    .wrap{ grid-template-columns: 1fr; padding: calc(var(--nav-h) + 12px) 12px 12px 12px; height: calc(100vh - var(--nav-h) - 80px); }
+    aside{ display:none; }
+  }
+
+  /* Info del footer pequeño */
+  .meta{ font-size:12px; opacity:0.8; }
+</style>
+</head>
+<body>
+
+<!-- NAVBAR -->
+<nav>
+  <div class="brand">Rincón • EUFORY • Market</div>
+
+  <div class="navlinks" id="navlinks">
+    <!-- Links generados por JS -->
+  </div>
+
+  <div style="margin-left:auto;display:flex;gap:8px">
+    <button class="btn secondary" id="themeToggle">Toggle theme</button>
+    <button class="btn" onclick="showRandomPhrase()">Motívate</button>
+  </div>
+</nav>
+
+<!-- LAYOUT: aside-left | main | aside-right -->
+<div class="wrap">
+
+  <!-- ASIDE LEFT: navegación por categorías / control -->
+  <aside id="aside-left">
+    <h3>Menú / Categorías</h3>
+    <div id="cat-list" class="card small"></div>
+
+    <hr>
+    <div class="card">
+      <h4>Estado</h4>
+      <div class="small">Productos: <span id="prod-count">0</span></div>
+      <div class="small">Carrito: <span id="cart-count">0</span></div>
+      <div style="margin-top:8px">
+        <label><input type="checkbox" id="accept-terms"> Acepto Términos y Condiciones</label><br>
+        <a href="termsLink.md/index.html" id="termsLink" class="link-like" onclick="openTerms()">Ver Términos</a>
+      </div>
+    </div>
+  </aside>
+
+  
+  
+  <!-- MAIN: aquí carga el contenido dinámico -->
+  <main id="main">
+    <h2>Bienvenido</h2>
+    <p class="small">Carga productos, selecciona y envía pedido por WhatsApp / Email / Messenger (sin servidor).</p>
+
+    <div id="products" class="card"></div>
+  </main>
+
+  
+  
+  <!-- ASIDE RIGHT: carrito y acciones -->
+  <aside id="aside-right">
+    <h3>Carrito</h3>
+    <div id="cart-list" class="card small"></div>
+
+    <div class="card">
+      <h4>Acciones</h4>
+      <div class="flex">
+        <button class="btn" id="sendWhats">Enviar WhatsApp</button>
+        <button class="btn secondary" id="sendEmail">Enviar Email</button>
+      </div>
+      <div style="margin-top:8px" class="small">
+        <button class="btn secondary" id="clearCart">Vaciar</button>
+      </div>
+    </div>
+
+    <div class="card small">
+      <h4>Frase del día</h4>
+      <div id="phraseBox">—</div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- FOOTER -->
+<footer>
+  <div class="meta">Prototipo cliente-side • No almacena órdenes en servidor • Diseño all-in-one</div>
+</footer>
+
+<!-- SCRIPTS: todo en un solo bloque para que lo entiendas fácil -->
+<script>
+/* -----------------------
+   DATOS EMBED (simulan products.json / components)
+   ----------------------- */
+
+/*
+const DATA = {
+  products: [
+    { id:"p001", name:"Hamburguesa Clásica", price:50, desc:"Pan, carne, queso y salsa.", cat:"Comida" },
+    { id:"p002", name:"Pizza Mediana", price:120, desc:"Pepperoni, extra queso.", cat:"Comida" },
+    { id:"p003", name:"Café Expreso", price:25, desc:"Taza pequeña.", cat:"Bebidas" },
+    { id:"p004", name:"Combo Hada", price:180, desc:"Hamburguesa + papas + bebida.", cat:"Ofertas" }
+  ],
+  categories: ["Todos","Comida","Bebidas","Ofertas"],
+  phrases: [
+    "VALOR. No por lo que logras, sino por lo que aguantas sin rendirte.",
+    "VALÓRATE. No porque te vean, sino porque sabes lo que diste.",
+    "A veces dolido, pero nunca vacío."
+  ],
+  terms: `TÉRMINOS DE PEDIDO — Al seleccionar "Pago en efectivo" y enviar el pedido, el cliente acepta pagar la totalidad al recibirlo. El sistema actúa solo como interfaz de pedido; el restaurante confirmará disponibilidad y entrega. Cancelaciones posteriores pueden no ser aceptadas.`
+};
+
+/* -----------------------
+   Estado / Carrito
+   ----------------------- */
+let CART = [];
+
+/* -----------------------
+   Utilidades
+   ----------------------- */
+function $(id){ return document.getElementById(id); }
+
+function updateCounts(){
+  $('prod-count').textContent = DATA.products.length;
+  $('cart-count').textContent = CART.length;
+}
+
+/* -----------------------
+   Render: productos
+   ----------------------- */
+function renderProducts(filterCat = "Todos"){
+  const out = $('products');
+  out.innerHTML = "";
+  const list = DATA.products.filter(p => filterCat === "Todos" ? true : p.cat === filterCat);
+  if(list.length === 0){
+    out.innerHTML = "<div class='card small'>No hay productos en esta categoría.</div>";
+    return;
+  }
+  list.forEach(p => {
+    const div = document.createElement('div');
+    div.className = "product";
+    div.innerHTML = `
+      <div>
+        <h4>${p.name}</h4>
+        <div class="small">${p.desc}</div>
+        <div class="small">Precio: $${p.price}</div>
+      </div>
+      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px">
+        <button class="btn" onclick="addToCart('${p.id}')">Agregar</button>
+        <button class="btn secondary" onclick="openProduct('${p.id}')">Ver</button>
+      </div>
+    `;
+    out.appendChild(div);
+  });
+}
+
+/* -----------------------
+   Render: categorías (aside-left)
+   ----------------------- */
+function renderCategories(){
+  const node = $('cat-list');
+  node.innerHTML = '';
+  DATA.categories.forEach(cat => {
+    const a = document.createElement('div');
+    a.innerHTML = `<a class="link-like" onclick="selectCategory('${cat}')">${cat}</a>`;
+    node.appendChild(a);
+  });
+}
+
+/* -----------------------
+   Carrito: add / remove / render
+   ----------------------- */
+function addToCart(id){
+  const p = DATA.products.find(x => x.id === id);
+  if(!p) return;
+  // clon simple con qty
+  const existing = CART.find(x => x.id === id);
+  if(existing) existing.qty++;
+  else CART.push({...p, qty:1});
+  renderCart();
+}
+
+function removeFromCart(id){
+  CART = CART.filter(x => x.id !== id);
+  renderCart();
+}
+
+function changeQty(id, delta){
+  const item = CART.find(x => x.id === id);
+  if(!item) return;
+  item.qty = Math.max(1, item.qty + delta);
+  renderCart();
+}
+
+function renderCart(){
+  const node = $('cart-list');
+  node.innerHTML = '';
+  if(CART.length === 0){ node.innerHTML = "<div class='small'>Carrito vacío</div>"; updateCounts(); return; }
+  CART.forEach(item => {
+    const d = document.createElement('div');
+    d.innerHTML = `
+      <div style="flex:1">
+        <div><strong>${item.name}</strong> <span class="small">x${item.qty}</span></div>
+        <div class="small">$${item.price} c/u</div>
+      </div>
+      <div style="display:flex;flex-direction:column;gap:6px;align-items:flex-end">
+        <div class="small flex">
+          <button class="btn secondary" onclick="changeQty('${item.id}', -1)">-</button>
+          <button class="btn secondary" onclick="changeQty('${item.id}', 1)">+</button>
+        </div>
+        <div class="small link-like" onclick="removeFromCart('${item.id}')">Eliminar</div>
+      </div>
+    `;
+    node.appendChild(d);
+  });
+  // total
+  const total = CART.reduce((s,i)=> s + i.price*i.qty,0);
+  const tdiv = document.createElement('div');
+  tdiv.style.marginTop = '10px';
+  tdiv.innerHTML = `<div class="small"><strong>Total:</strong> $${total}</div>`;
+  node.appendChild(tdiv);
+  updateCounts();
+}
+
+/* -----------------------
+   Mensaje pre-armado y envío (WhatsApp / Email / Messenger)
+   - NO requiere servidor; solo abre links pre-armados
+   - Cambia el número / correo a tu contacto real
+   ----------------------- */
+function generateMessage(){
+  if(CART.length === 0) return "Carrito vacío";
+  let msg = "Hola! Quisiera hacer este pedido:%0A";
+  CART.forEach(i => {
+    msg += `- ${i.name} x${i.qty} ($${i.price})%0A`;
+  });
+  const total = CART.reduce((s,i)=> s + i.price*i.qty,0);
+  msg += `%0ATotal: $${total}%0A`;
+  msg += `Pago: ${$('accept-terms').checked ? 'Efectivo (acepta términos)' : 'No especificado'}%0A`;
+  msg += `Dirección: ____________________%0A`;
+  return msg;
+}
+
+function sendWhatsApp(){
+  if(!$('accept-terms').checked){ alert('Debes aceptar los términos antes de enviar.'); return; }
+  if(CART.length === 0){ alert('El carrito está vacío'); return; }
+  const phone = '5211234567890'; // <--- cambia aquí al número del restaurante (formato E.164 sin signos)
+  const url = `https://wa.me/${phone}?text=${generateMessage()}`;
+  window.open(url, '_blank');
+}
+
+function sendEmail(){
+  if(!$('accept-terms').checked){ alert('Debes aceptar los términos antes de enviar.'); return; }
+  if(CART.length === 0){ alert('El carrito está vacío'); return; }
+  const mail = 'restaurante@example.com'; // <--- cambia correo
+  const subject = encodeURIComponent('Pedido desde portal');
+  const body = generateMessage().replace(/%0A/g, '\n');
+  const url = `mailto:${mail}?subject=${subject}&body=${encodeURIComponent(body)}`;
+  window.open(url, '_blank');
+}
+
+/* -----------------------
+   Simple "Ver producto" modal (inline)
+   ----------------------- */
+function openProduct(id){
+  const p = DATA.products.find(x=>x.id===id);
+  if(!p) return;
+  const prev = $('main');
+  const html = `
+    <div class="card">
+      <button class="btn secondary" onclick="renderProducts()">Volver</button>
+      <h3>${p.name}</h3>
+      <div class="small">Precio: $${p.price}</div>
+      <p>${p.desc}</p>
+      <div style="margin-top:8px;">
+        <button class="btn" onclick="addToCart('${p.id}')">Agregar al carrito</button>
+      </div>
+    </div>
+  `;
+  prev.innerHTML = html;
+}
+
+/* -----------------------
+   Categoría seleccionada (cambia main)
+   ----------------------- */
+function selectCategory(cat){
+  renderProducts(cat);
+}
+
+/* -----------------------
+   Nav links (arriba): puedes vincular a IDs que existan o cargar funciones
+   ----------------------- */
+function renderNav(){
+  const nav = $('navlinks');
+  const links = [
+    { label:'Inicio', action: ()=> { renderHome(); } },
+    { label:'Menú', action: ()=> { renderProducts(); } },
+    { label:'Pedidos', action: ()=> { showCartFocus(); } },
+    { label:'EUFORY', action: ()=> { loadEufory(); } }
+  ];
+  nav.innerHTML = '';
+  links.forEach(l=>{
+    const a = document.createElement('a');
+    a.textContent = l.label;
+    a.href = 'javascript:void(0)';
+    a.onclick = l.action;
+    nav.appendChild(a);
+  });
+}
+
+/* -----------------------
+   Otras utilidades: home, eufory, focus cart
+   ----------------------- */
+function renderHome(){
+  const m = $('main');
+  m.innerHTML = `
+    <h2>Bienvenido al Portal</h2>
+    <div class="card small">
+      <p>Este prototipo agrupa restaurante, marketplace y EUFORY en un solo HTML para que aprendas rápido.</p>
+      <p class="small">Usa el menú a la izquierda para navegar categorías. El carrito está a la derecha.</p>
+    </div>
+  `;
+}
+
+function showCartFocus(){
+  renderCart();
+  // si quieres, en mobile podrías scrollear al aside-right
+  alert('Abre el carrito a la derecha y presiona Enviar para probar (recuerda aceptar términos).');
+}
+
+/* EUFORY pequeño demo */
+function loadEufory(){
+  const m = $('main');
+  m.innerHTML = `
+    <h2>EUFORY — Obras</h2>
+    <div class="card small">
+      <div><strong>La Hada y el Bosque</strong><br><span class="small">15 Nov 2025 • Teatro Central</span></div>
+      <hr>
+      <div><strong>El Hechizo de la Luna</strong><br><span class="small">22 Nov 2025 • Sala EUFORY</span></div>
+    </div>
+    <div class="card small">
+      <p>Puedes usar esta sección para listar funciones y enlazar a compra de boletos (o contacto).</p>
+    </div>
+  `;
+}
+
+/* -----------------------
+   Términos: abre modal simple o alerta
+   ----------------------- */
+function openTerms(){
+  alert(DATA.terms);
+}
+
+/* -----------------------
+   Frases: random
+   ----------------------- */
+function showRandomPhrase(){
+  const p = DATA.phrases[Math.floor(Math.random()*DATA.phrases.length)];
+  $('phraseBox').textContent = p;
+}
+
+/* -----------------------
+   Botones y eventos iniciales
+   ----------------------- */
+window.addEventListener('load', ()=>{
+  renderNav();
+  renderCategories();
+  renderProducts();
+  renderCart();
+  showRandomPhrase();
+
+  // botones
+  $('sendWhats').onclick = sendWhatsApp;
+  $('sendEmail').onclick = sendEmail;
+  $('clearCart').onclick = ()=>{ CART=[]; renderCart(); };
+
+  // toggle theme (no cambia sistema, solo fuerza inverso)
+  let forced = false;
+  $('themeToggle').onclick = ()=>{
+    forced = !forced;
+    if(forced){
+      document.documentElement.style.setProperty('--bg-light','#0f1720');
+      document.documentElement.style.setProperty('--text-light','#e6eef8');
+      document.documentElement.style.setProperty('--accent','#7ee787');
+    } else {
+      document.documentElement.style.removeProperty('--bg-light');
+      document.documentElement.style.removeProperty('--text-light');
+      document.documentElement.style.removeProperty('--accent');
+    }
+  };
+
+  // permitir enviar solo si acepta términos (botones comprobarán)
+});
+
+/* -----------------------
+   Instrucciones / Nota sobre modularización:
+   - Ahora todo está embebido en este archivo para que entiendas rápido.
+   - Para separar: crea carpeta /components y guarda cada bloque HTML (navbar.html, aside.html, main.html, footer.html).
+   - En lugar de DATA… puedes tener products.json y fetch('data/products.json').then(...)
+   - Para cargar componentes desde GitHub raw: fetch('https://raw.githubusercontent.com/usuario/repo/branch/components/navbar.html').then(...)
+   - Para ejecutar JS desde JSON: NUNCA uses eval en código no confiable. Solo ejecuta JS que TÚ escribiste y controlas.
+   ----------------------- */
+</script>
+
+
+</body>
+</html>
