@@ -27,7 +27,7 @@
     color:var(--text-light);
     display:grid;
     grid-template-rows: var(--nav-h) 1fr auto;
-    height:100vh;
+    height:100%;
   }
   @media (prefers-color-scheme: dark){
     body{ background:var(--bg-dark); color:var(--text-dark); }
@@ -62,7 +62,7 @@
     grid-template-columns: var(--aside-w) 1fr var(--aside-w);
     gap:var(--gap);
     padding: calc(var(--nav-h) + 18px) 18px 18px 18px; /* deja espacio por la navbar */
-    height: calc(100vh - var(--nav-h) - 80px);
+    height: calc(100% - var(--nav-h) - 80px);
     box-sizing:border-box;
   }
 
